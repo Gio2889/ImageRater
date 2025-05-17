@@ -7,7 +7,7 @@ This project implements an image rating system using a convolutional neural netw
 - **/data**: Directory containing images and dataset files
 - **/models**: Trained model weights
 - **/src**: Source codes for dataset preparation, model definition, prediction, and training
-- **/notebooks**: Jupyter notebooks for exploratory data analysis and visualization
+
 
 ## Requirements
 - Python 3.x
