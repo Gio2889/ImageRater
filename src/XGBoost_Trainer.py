@@ -210,17 +210,23 @@ if __name__ == "__main__":
     train_dir = "D:/DiscordBotTrainingSet/sets/train"
     test_dir = "D:/DiscordBotTrainingSet/sets/val"
 
-    model_type = "resnet"  # or 'efficientnet'
+    model_type = 'efficientnet'  # or 'efficientnet' "resnet"
     print("--- Initializing trainer ---")
     trainer = XGBoostModelTrainer(model_type=model_type, device="cuda")
     print("--- trainer ready ---\n")
     custom_training_grid = {
-        "n_estimators": [50, 100, 200, 500, 1000],
-        "max_depth": [3, 6, 10, 15],
-        "learning_rate": [0.001, 0.01, 0.1, 0.2, 0.5],
-        "subsample": [0.2, 0.4, 0.6, 0.8, 1.0],
-        "colsample_bytree": [0.2, 0.4, 0.6, 0.8, 1.0],
-    }
+    "n_estimators": [50, 100, 200, 500, 1000],
+    "max_depth": [3, 6, 10, 15],
+    "learning_rate": [0.001, 0.01, 0.1, 0.2, 0.5],
+    "subsample": [0.2, 0.4, 0.6, 0.8, 1.0],
+    "colsample_bytree": [0.2, 0.4, 0.6, 0.8, 1.0],
+    "gamma": [0, 0.1, 0.2, 0.3],
+    "min_child_weight": [1, 3, 5],
+    "reg_alpha": [0, 0.1, 0.5, 1],
+    "reg_lambda": [1, 1.5, 2],
+    "scale_pos_weight": [1, 2, 3, 4],
+    "objective": ["reg:squarederror", "binary:logistic"]
+    }   
 
     # Run the training pipeline with hyperparameter tuning
     trainer.run_training_pipeline(
