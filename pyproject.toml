@@ -3,18 +3,17 @@ name = "imagerater"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
-    "matplotlib>=3.10.1",
-    "numpy>=2.2.5",
+    "efficientnet-pytorch>=0.7.1",
+    "keras>=3.10.0",
     "pandas>=2.2.3",
-    "pillow>=11.2.1",
     "scikit-learn>=1.6.1",
+    "six>=1.17.0",
     "torch>=2.7.0",
     "torchvision>=0.22.0",
-    "tqdm>=4.67.1",
+    "xgboost>=3.0.2",
 ]
-
 [tool.uv.sources]
 torch = [
     { index = "pytorch-cu126" },

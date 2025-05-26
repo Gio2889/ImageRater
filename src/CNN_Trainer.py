@@ -2,8 +2,8 @@ import torch
 import os
 import itertools
 from torch.utils.data import DataLoader
-from src.ImageRater import ImageRater
-from src.dataset_creator import ImageDataset
+from ImageRater import ImageRater
+from dataset_creator import ImageDataset
 import torch.optim as optim
 import torch.nn as nn
 import torchvision.transforms as T
@@ -20,7 +20,7 @@ class ModelTrainer:
         print(f"Device Name: {torch.cuda.get_device_name(0)}")
         print("--- Initializing ModelTrainer ---")
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = ImageRater().to(self.device)
+        self.model = ImageRater( model_type=config["model_type"],dropout_rate=config["dropout_rate"]).to(self.device)
         self.criterion = nn.MSELoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=config["learning_rate"])
         self.num_epochs = config["num_epochs"]
@@ -46,12 +46,12 @@ class ModelTrainer:
 
         self.train_dataset = ImageDataset(
             "train_set.json",
-            "f{self.main_path}sets/train/",
+            f"{self.main_path}sets/train/",
             transform=self.train_transform,
         )
 
         self.val_dataset = ImageDataset(
-            "val_set.json", "f{self.main_path}/sets/val/", transform=self.val_transform
+            "val_set.json", f"{self.main_path}/sets/val/", transform=self.val_transform
         )
 
         print(f"--- Model is on device: {next(self.model.parameters()).device} ---")
@@ -66,7 +66,7 @@ class ModelTrainer:
             Exception: If loss computation fails during validation.
         """
         self.model.eval()
-        val_loader = DataLoader(self.val_dataset, batch_size=64, shuffle=False)
+        val_loader = DataLoader(self.val_dataset, batch_size=self.batch_size, shuffle=False)
         val_loss = 0
 
         with torch.no_grad():
@@ -91,7 +91,7 @@ class ModelTrainer:
             self.model.train()
             train_loader = DataLoader(
                 self.train_dataset,
-                batch_size=64,
+                batch_size=self.batch_size,
                 shuffle=True,
                 num_workers=4,
                 pin_memory=False,
@@ -109,11 +109,13 @@ class ModelTrainer:
             if val_loss < self.best_val_loss:
                 self.best_val_loss = val_loss
                 self.best_epoch = epoch + 1
-                os.makedirs("weights", exist_ok=True)
-                torch.save(
-                    self.model.state_dict(),
-                    f"models/best_model_epoch_{self.best_epoch}.pth",
-                )
+
+        print("--- Saving best epoch model ---")
+        os.makedirs("weights", exist_ok=True)
+        torch.save(
+            self.model.state_dict(),
+            f"models/best_model_epoch_{self.best_epoch}.pth",
+        )
 
 
 def hyper_param_tuner(main_path: str, param_grid: dict = None):
@@ -128,14 +130,16 @@ def hyper_param_tuner(main_path: str, param_grid: dict = None):
     if param_grid is None:
         print("-- No parameter grid provided --")
         param_grid = {
+            "model_type" : ["resnet"],
             "learning_rate": [1e-3],
-            "batch_size": [64],
+            "batch_size": [16],
             "epochs": [20],
-            "dropout_rate": [0.3],
+            "dropout_rate": [0.1],
         }
         print("Using default single value grid")
     grid = list(
         itertools.product(
+            param_grid["model_type"],
             param_grid["learning_rate"],
             param_grid["batch_size"],
             param_grid["epochs"],
@@ -148,10 +152,11 @@ def hyper_param_tuner(main_path: str, param_grid: dict = None):
 
     for params in grid:
         config = {
-            "learning_rate": params[0],
-            "batch_size": params[1],
-            "num_epochs": params[2],
-            "dropout_rate": params[3],
+            "model_type" : params[0],
+            "learning_rate": params[1],
+            "batch_size": params[2],
+            "num_epochs": params[3],
+            "dropout_rate": params[4],
         }
 
         trainer = ModelTrainer(main_path, config)
@@ -160,16 +165,17 @@ def hyper_param_tuner(main_path: str, param_grid: dict = None):
             best_loss = trainer.best_val_loss
             best_params = config
 
-    print(f"Best parameters: {best_params}")
-    print(f"Best validation loss: {best_loss}")
+    print(f"Best parameters: \n{best_params}")
+    print(f"Best validation loss: \n{best_loss}")
 
 
 if __name__ == "__main__":
     param_grid = {
-        "learning_rate": [1e-3, 1e-4],
-        "batch_size": [16, 32, 64],
-        "epochs": [10, 20, 50],
-        "dropout_rate": [0.3, 0.5],
+        "model_type" : ["efficientnet"],
+        "learning_rate": [1e-4],
+        "batch_size": [12],
+        "epochs": [5],
+        "dropout_rate": [0.3],
     }
     main_path = "D:/DiscordBotTrainingSet/"
     print("--- Hypertuner initialized ---")
