@@ -1,10 +1,16 @@
 import torch.nn as nn
 from torchvision import models
 
+
 class ImageRater(nn.Module):
     """Initializes the ImageRater model using a pre-trained ResNet base and a regression head."""
 
-    def __init__(self, dropout_rate: float =0.2,model_type: str = 'resnet',input_size : int =512):
+    def __init__(
+        self,
+        dropout_rate: float = 0.2,
+        model_type: str = "resnet",
+        input_size: int = 512,
+    ):
         """
         Initializes the ImageRater model using a pre-trained backbone (either ResNet or EfficientNet)
         and a regression head.
@@ -20,18 +26,20 @@ class ImageRater(nn.Module):
         """
         super().__init__()
         # Load pre-trained model (remove the classification layer)
-        if model_type == 'resnet':
+        if model_type == "resnet":
             self.base = models.resnet152(weights="DEFAULT")
             self.output_size = 2048
-        elif model_type == 'efficientnet':
+        elif model_type == "efficientnet":
             self.base = models.efficientnet_b5(weights="DEFAULT")
             self.output_size = 1000
-
 
         self.base.fc = nn.Identity()  # Remove the final layer
         # Add regression head
         self.regressor = nn.Sequential(
-            nn.Linear(self.output_size, input_size), nn.ReLU(), nn.Dropout(dropout_rate), nn.Linear(input_size, 1)
+            nn.Linear(self.output_size, input_size),
+            nn.ReLU(),
+            nn.Dropout(dropout_rate),
+            nn.Linear(input_size, 1),
         )
 
     def forward(self, x):

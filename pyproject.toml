@@ -8,6 +8,7 @@ dependencies = [
     "efficientnet-pytorch>=0.7.1",
     "keras>=3.10.0",
     "pandas>=2.2.3",
+    "ruff>=0.11.11",
     "scikit-learn>=1.6.1",
     "six>=1.17.0",
     "torch>=2.7.0",

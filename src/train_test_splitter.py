@@ -88,11 +88,9 @@ def clean_ratings_and_pictures(main_path):
 
     for id in ids_to_remove:
         del data[id]
-        for ext in [".jpg", ".jpeg", ".webp", ".png", ".gif", ".bmp", ".tiff"]:
-            image_path = os.path.join(images_path, f"{id}{ext}")
-            if os.path.isfile(images_path):
-                os.remove(images_path)
-                break
+        if os.path.isfile(images_path):
+            os.remove(images_path)
+            break
 
     with open(json_file_path, "w") as file:
         json.dump(data, file, indent=4)

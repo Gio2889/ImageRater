@@ -20,7 +20,9 @@ class ModelTrainer:
         print(f"Device Name: {torch.cuda.get_device_name(0)}")
         print("--- Initializing ModelTrainer ---")
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = ImageRater( model_type=config["model_type"],dropout_rate=config["dropout_rate"]).to(self.device)
+        self.model = ImageRater(
+            model_type=config["model_type"], dropout_rate=config["dropout_rate"]
+        ).to(self.device)
         self.criterion = nn.MSELoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=config["learning_rate"])
         self.num_epochs = config["num_epochs"]
@@ -66,7 +68,9 @@ class ModelTrainer:
             Exception: If loss computation fails during validation.
         """
         self.model.eval()
-        val_loader = DataLoader(self.val_dataset, batch_size=self.batch_size, shuffle=False)
+        val_loader = DataLoader(
+            self.val_dataset, batch_size=self.batch_size, shuffle=False
+        )
         val_loss = 0
 
         with torch.no_grad():
@@ -130,7 +134,7 @@ def hyper_param_tuner(main_path: str, param_grid: dict = None):
     if param_grid is None:
         print("-- No parameter grid provided --")
         param_grid = {
-            "model_type" : ["resnet"],
+            "model_type": ["resnet"],
             "learning_rate": [1e-3],
             "batch_size": [16],
             "epochs": [20],
@@ -152,7 +156,7 @@ def hyper_param_tuner(main_path: str, param_grid: dict = None):
 
     for params in grid:
         config = {
-            "model_type" : params[0],
+            "model_type": params[0],
             "learning_rate": params[1],
             "batch_size": params[2],
             "num_epochs": params[3],
@@ -171,7 +175,7 @@ def hyper_param_tuner(main_path: str, param_grid: dict = None):
 
 if __name__ == "__main__":
     param_grid = {
-        "model_type" : ["efficientnet"],
+        "model_type": ["efficientnet"],
         "learning_rate": [1e-4],
         "batch_size": [12],
         "epochs": [5],
