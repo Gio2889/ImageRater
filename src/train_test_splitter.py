@@ -43,20 +43,21 @@ def split_image_sets(main_path, train_ratio=0.8, val_ratio=0.15, output_dir="out
         json.dump(hold_out_set, holdout_file)
 
     for img in train_set:
-        shutil.move(
+        shutil.copy(
             f"{images_path}{img}",
             os.path.join(output_dir, "train", os.path.basename(img)),
         )
     for img in val_set:
-        shutil.move(
+        shutil.copy(
             f"{images_path}{img}",
             os.path.join(output_dir, "val", os.path.basename(img)),
         )
     for img in hold_out_set:
-        shutil.move(
+        shutil.copy(
             f"{images_path}{img}",
             os.path.join(output_dir, "holdout", os.path.basename(img)),
         )
+    print("--- Dataset created succesfully")
 
 
 def clean_ratings_and_pictures(main_path):
@@ -81,13 +82,16 @@ def clean_ratings_and_pictures(main_path):
     for id, rating in data.items():
         if rating == "-":
             ids_to_remove.append(id)
+        if not os.path.exists(f"{images_path}/{id}"):
+            print(f"{id} not found in the images dir")
+            ids_to_remove.append(id)
 
     for id in ids_to_remove:
         del data[id]
         for ext in [".jpg", ".jpeg", ".webp", ".png", ".gif", ".bmp", ".tiff"]:
             image_path = os.path.join(images_path, f"{id}{ext}")
-            if os.path.isfile(image_path):
-                os.remove(image_path)
+            if os.path.isfile(images_path):
+                os.remove(images_path)
                 break
 
     with open(json_file_path, "w") as file:
@@ -95,9 +99,9 @@ def clean_ratings_and_pictures(main_path):
 
 
 if __name__ == "__main__":
-    main_path = "some_path/"
+    main_path = "Some_path"
     # clean images of unsuable formats
     clean_ratings_and_pictures(main_path)
     split_image_sets(
-        main_path, train_ratio=0.8, val_ratio=0.15, output_dir=f"{main_path}sets"
+        main_path, train_ratio=0.85, val_ratio=0.1, output_dir=f"{main_path}sets"
     )
